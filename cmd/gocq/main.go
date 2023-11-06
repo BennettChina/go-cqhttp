@@ -310,7 +310,7 @@ func LoginInteract() {
 		remoteVersion, err := getRemoteLatestProtocolVersion(int(device.Protocol.Version().Protocol))
 		if err == nil {
 			remoteVersionName := gjson.GetBytes(remoteVersion, "sort_version_name").String()
-			compare := compareVersion(remoteVersion, currentVersionName)
+			compare := compareVersion(remoteVersionName, currentVersionName)
 			if compare > 0 {
 				switch {
 				case !base.UpdateProtocol:

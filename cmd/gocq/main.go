@@ -11,6 +11,8 @@ import (
 	"path"
 	"sync"
 	"time"
+	"strconv"
+    	"strings"
 
 	"github.com/Mrs4s/MiraiGo/binary"
 	"github.com/Mrs4s/MiraiGo/client"
@@ -308,7 +310,8 @@ func LoginInteract() {
 		remoteVersion, err := getRemoteLatestProtocolVersion(int(device.Protocol.Version().Protocol))
 		if err == nil {
 			remoteVersionName := gjson.GetBytes(remoteVersion, "sort_version_name").String()
-			if remoteVersionName != currentVersionName {
+			compare := compareVersion(remoteVersion, currentVersionName)
+			if compare > 0 {
 				switch {
 				case !base.UpdateProtocol:
 					log.Infof("检测到协议更新: %s -> %s", currentVersionName, remoteVersionName)
@@ -490,6 +493,33 @@ func getRemoteLatestProtocolVersion(protocolType int) ([]byte, error) {
 		return download.Request{URL: "https://ghproxy.com/" + url}.Bytes()
 	}
 	return response, nil
+}
+
+func compareVersion(version1, version2 string) int {
+    v1 := strings.Split(version1, ".")
+    v2 := strings.Split(version2, ".")
+     
+    len1 := len(v1)
+    len2 := len(v2)
+
+    for i := 0; i < len1 || i < len2; i++ {
+        part1 := 0
+        if i < len1 {
+            part1, _ = strconv.Atoi(v1[i])
+        }
+
+        part2 := 0
+        if i < len2 {
+            part2, _ = strconv.Atoi(v2[i])
+        }
+
+        if part1 > part2 {
+            return 1
+        } else if part1 < part2 {
+            return -1
+        }
+    }
+    return 0
 }
 
 type protocolLogger struct{}
